@@ -41,7 +41,7 @@ contract CoolTokenName is ERC20Capped, ERC20Burnable {
     }
 
     modifier onlyOwner {
-        require(msg.sender == owner, "Only the owner can call this funсtion");
+        require(msg.sender == owner, "Only the contract owner can call this function");
         _;
     }
 }

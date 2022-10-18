@@ -5,6 +5,8 @@ pragma solidity ^0.8.17;
 interface IERC20 {
     function transfer(address to, uint256 amount) external view returns(bool);
     function balanceOf(address account) external view returns(uint256);
+
+    event Transfer(address indexed from, address indexed to, uint256 amount);
 }
 
 contract Faucet {
@@ -13,6 +15,9 @@ contract Faucet {
 
     uint256 withdrawAmount = 50 * (10 ** 18);
     uint256 lockTime = 1 minutes;
+
+    event Deposit(address indexed from, uint256 amount);
+    event Withdrawl(address indexed to, uint256 amount);
 
     mapping(address => uint256) nextClaimAttempt;
 
@@ -29,5 +34,31 @@ contract Faucet {
         nextClaimAttempt[msg.sender] = block.timestamp + lockTime;
 
         token.transfer(msg.sender, withdrawAmount);
+    }
+
+    receive() external payable {
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function faucetBalance() external view returns(uint256) {
+        return token.balanceOf(address(this));
+    }
+
+    function setWithdrawAmount(uint256 withdrawAmount_) public onlyOwner {
+        withdrawAmount = withdrawAmount_ * (10 ** 18);
+    }
+
+    function setLockTime(uint256 lockTime_) public onlyOwner {
+        lockTime = lockTime_ * 1 minutes;
+    }
+
+    function withdrawFaucetFunds() external onlyOwner {
+        emit Withdrawl(msg.sender, token.balanceOf(address(this)));
+        token.transfer(msg.sender, token.balanceOf(address(this)));
+    } 
+
+    modifier onlyOwner {
+        require(owner == msg.sender, "Only the contract owner can call this function");
+        _; 
     }
 }
