@@ -3,8 +3,8 @@
 pragma solidity ^0.8.17;
 
 interface IERC20 {
-    function transfer(address to, uint256 amount) external view returns(bool);
-    function balanceOf(address account) external view returns(uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
 
     event Transfer(address indexed from, address indexed to, uint256 amount);
 }
@@ -13,11 +13,11 @@ contract Faucet {
     address payable owner;
     IERC20 public token;
 
-    uint256 withdrawAmount = 50 * (10 ** 18);
-    uint256 lockTime = 1 minutes;
+    uint256 public withdrawAmount = 50 * (10 ** 18);
+    uint256 public lockTime = 1 minutes;
 
     event Deposit(address indexed from, uint256 amount);
-    event Withdrawl(address indexed to, uint256 amount);
+    event Withdrawal(address indexed to, uint256 amount);
 
     mapping(address => uint256) nextClaimAttempt;
 
@@ -40,7 +40,7 @@ contract Faucet {
         emit Deposit(msg.sender, msg.value);
     }
 
-    function faucetBalance() external view returns(uint256) {
+    function faucetBalance() external view returns (uint256) {
         return token.balanceOf(address(this));
     }
 
@@ -53,7 +53,7 @@ contract Faucet {
     }
 
     function withdrawFaucetFunds() external onlyOwner {
-        emit Withdrawl(msg.sender, token.balanceOf(address(this)));
+        emit Withdrawal(msg.sender, token.balanceOf(address(this)));
         token.transfer(msg.sender, token.balanceOf(address(this)));
     } 
 
